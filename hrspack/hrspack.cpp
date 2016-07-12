@@ -57,12 +57,6 @@ static int lineNo;
 #define OUTENDL
 #endif
 
-// Null buffer for no output
-class NullBuffer : public std::streambuf
-{
-public:
-	int overflow(int c) { return c; }
-};
 
 extern bool calculateCRC;
 
@@ -1107,16 +1101,6 @@ inline void stream_write(std::ofstream& ofs, int sampleSize, int sample)
 	ofs.write(ptr + sizeof(s) - numBytes, numBytes);
 }
 
-int decode(int sample, int sampleSize) {
-	int mask = 1U << (sampleSize - 1);
-	return (sample ^ mask) - mask;
-}
-
-int encode(int sample, int sampleSize) {
-	int mask = 1U << (sampleSize - 1);
-	return (sample + mask) ^ mask;
-}
-
 
 void readComm(std::ifstream& ifs, CommonChunk &comm)
 {
@@ -1287,7 +1271,6 @@ std::streamoff ssndpack(std::ifstream& ifs, std::ofstream& ofs, short sampleSize
 	std::vector<int> sample[2];
 	sample[0].resize(numChannels);
 	sample[1].resize(numChannels);
-	int j = 0;
 	for (unsigned k = 0; k < numSampleFrames; k++) {
 		for (int c = 0; c < numChannels; c++) {
 			sample[0][c] = stream_read(ifs, sampleSize);
